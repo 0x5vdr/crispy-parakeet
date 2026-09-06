@@ -23,7 +23,7 @@ The project is primarily a learning project focused on building a real-world ful
 
 ## Planned Features
 
-* [ ] Create, edit, and delete trades
+* [x] Create, edit, and delete trades
 * [ ] Trade history and filtering
 * [ ] Trade setup tagging
 * [ ] Risk/reward tracking
