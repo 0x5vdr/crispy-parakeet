@@ -12,7 +12,7 @@ def test_calculate_win_rate():
     ]
 
     result = calculate_win_rate(trades)
-    assert result == 50
+    assert result == Decimal("40.0")
 def test_calculate_losing_rate():
     trades = [
         SimpleNamespace(result_r=3),
@@ -21,7 +21,7 @@ def test_calculate_losing_rate():
         SimpleNamespace(result_r=2),
         SimpleNamespace(result_r=-1),
     ]
-    assert calculate_losing_rate(trades) == 50
+    assert calculate_losing_rate(trades) == Decimal("60.0")
 
 def test_calculate_average_r():
     trades = [
@@ -65,7 +65,7 @@ def test_calculate_expectancy():
        SimpleNamespace(result_r=-1),
     ]
 
-    assert calculate_expectancy(trades) == Decimal("0.75")
+    assert calculate_expectancy(trades) == Decimal("0.40")
 
 def test_calculate_profit_factor():
     trades = [
@@ -76,7 +76,7 @@ def test_calculate_profit_factor():
         SimpleNamespace(result_r=-1),
     ]
 
-    assert calculate_profit_factor(trades) == Decimal("5.0")
+    assert calculate_profit_factor(trades) == 5 / 3
 
 def test_calculate_max_drawdown():
     trades = [
@@ -87,7 +87,7 @@ def test_calculate_max_drawdown():
         SimpleNamespace(result_r=-1),
     ]
 
-    assert calculate_max_drawdown(trades) == Decimal("-1.0")
+    assert calculate_max_drawdown(trades) == 2
 
 
    

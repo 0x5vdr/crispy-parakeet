@@ -34,3 +34,12 @@ class TradeUpdate(TradeBase):
         session: str | None = None
         trade_date: datetime | None = None
         notes: str | None = None
+
+class AnalyticsResponse(BaseModel):
+    win_rate: float
+    losing_rate: float
+    average_win_r: float
+    average_losing_r: float
+    expectancy: float
+    profit_factor: float | None = None
+    max_drawdown: float

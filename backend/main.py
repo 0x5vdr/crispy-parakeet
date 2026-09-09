@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from models import Trade
 from database import get_db
-from schemas import TradeResponse, TradeCreate, TradeUpdate
+from schemas import AnalyticsResponse, TradeResponse, TradeCreate, TradeUpdate
 import analytics
 
 app = FastAPI()
@@ -17,7 +17,7 @@ def create_trade(trade: TradeCreate, db = Depends(get_db)):
     db.refresh(new_trade)
     return new_trade
 
-@app.get("/trades/analytics")
+@app.get("/trades/analytics", response_model=AnalyticsResponse)
 def get_analytics(db = Depends(get_db)):
     trades = db.query(Trade).all()
     return {
@@ -42,7 +42,6 @@ def update_trade(trade_id: int, trade: TradeUpdate, db = Depends(get_db)):
     existing_trade = db.query(Trade).filter(Trade.id == trade_id).first()
     if existing_trade is None:
         raise HTTPException(status_code=404, detail="Trade not found")
-        print(trade.model_dump(exclude_unset=True))
     for key, value in trade.model_dump(exclude_unset=True).items():
         setattr(existing_trade, key, value)
     db.commit()
