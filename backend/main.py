@@ -1,10 +1,19 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from models import Trade
 from database import get_db
 from schemas import AnalyticsResponse, TradeResponse, TradeCreate, TradeUpdate
 import analytics
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/trades", response_model=list[TradeResponse])
 def get_trades(db = Depends(get_db)):
     return db.query(Trade).all()
