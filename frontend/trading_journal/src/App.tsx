@@ -3,8 +3,11 @@ import Header from './components/Header'
 import MetricCard from './components/MetricCard'
 import EquityChart from './components/EquityChart'
 import TradeTable from './components/TradeTable'
+import JournalView from './components/JournalView'
+import AnalyticsView from './components/AnalyticsView'
 import AddTradeModal from './components/AddTradeModal'
 import EditTradeModal from './components/EditTradeModal'
+import TradeDetailModal from './components/TradeDetailModal'
 import { getTrades, getAnalytics } from './api'
 import type { Trade, Analytics } from './types'
 import './App.css'
@@ -16,6 +19,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null)
+  const [inspectingTrade, setInspectingTrade] = useState<Trade | null>(null)
   const [activeTab, setActiveTab] = useState('Dashboard')
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date())
 
@@ -60,7 +64,6 @@ export function App() {
 
   const handleTradeAdded = (newTrade: Trade) => {
     setTrades((prev) => [newTrade, ...prev])
-    // Refresh analytics from backend
     getAnalytics()
       .then(setAnalytics)
       .catch(console.error)
@@ -70,7 +73,9 @@ export function App() {
     setTrades((prev) =>
       prev.map((t) => (t.id === updatedTrade.id ? updatedTrade : t)),
     )
-    // Refresh analytics
+    if (inspectingTrade?.id === updatedTrade.id) {
+      setInspectingTrade(updatedTrade)
+    }
     getAnalytics()
       .then(setAnalytics)
       .catch(console.error)
@@ -78,7 +83,9 @@ export function App() {
 
   const handleTradeDeleted = (deletedTradeId: number) => {
     setTrades((prev) => prev.filter((t) => t.id !== deletedTradeId))
-    // Refresh analytics
+    if (inspectingTrade?.id === deletedTradeId) {
+      setInspectingTrade(null)
+    }
     getAnalytics()
       .then(setAnalytics)
       .catch(console.error)
@@ -93,7 +100,7 @@ export function App() {
       />
 
       <main className="main-content">
-        {/* Sub-header status bar */}
+        {/* Status bar */}
         <div className="status-bar">
           <div className="status-left">
             <span className="account-badge">
@@ -144,6 +151,7 @@ export function App() {
           </div>
         )}
 
+        {/* 1. Dashboard View */}
         {activeTab === 'Dashboard' && (
           <div className="dashboard-view">
             {/* 5 Key Metric Cards */}
@@ -151,9 +159,19 @@ export function App() {
               <MetricCard
                 label="TOTAL R PERFORMANCE"
                 value={`${totalR >= 0 ? '+' : ''}${totalR.toFixed(2)}R`}
-                description={trades.length > 0 ? `Calculated across ${trades.length} logged trades` : 'No trades logged'}
+                description={
+                  trades.length > 0
+                    ? `Calculated across ${trades.length} logged trades`
+                    : 'No trades logged'
+                }
                 positive={totalR >= 0}
-                badge={trades.length > 0 ? (totalR >= 0 ? 'Profitable' : 'Drawdown') : undefined}
+                badge={
+                  trades.length > 0
+                    ? totalR >= 0
+                      ? 'Profitable'
+                      : 'Drawdown'
+                    : undefined
+                }
               />
 
               <MetricCard
@@ -189,7 +207,8 @@ export function App() {
                     : '—'
                 }
                 description={
-                  analytics?.profit_factor != null && Number(analytics.profit_factor) >= 2
+                  analytics?.profit_factor != null &&
+                  Number(analytics.profit_factor) >= 2
                     ? 'Optimal Risk/Reward'
                     : 'Gross Win / Loss ratio'
                 }
@@ -199,7 +218,8 @@ export function App() {
                     : undefined
                 }
                 badge={
-                  analytics?.profit_factor != null && Number(analytics.profit_factor) >= 2
+                  analytics?.profit_factor != null &&
+                  Number(analytics.profit_factor) >= 2
                     ? 'Elite Edge'
                     : undefined
                 }
@@ -231,27 +251,25 @@ export function App() {
               <TradeTable
                 trades={trades}
                 onEditTrade={(trade) => setEditingTrade(trade)}
+                onTradeSelect={(trade) => setInspectingTrade(trade)}
               />
             </div>
           </div>
         )}
 
-        {/* Tab placeholders leaving room for Journal, Analytics, Playbook, Calendar */}
-        {activeTab !== 'Dashboard' && (
-          <div className="placeholder-tab-card">
-            <div className="placeholder-icon">📊</div>
-            <h2>{activeTab} Module</h2>
-            <p>
-              This section is reserved for future expansion ({activeTab} deep-dive view).
-              Switch back to <strong>Dashboard</strong> to view your live execution stream and cumulative equity curve.
-            </p>
-            <button
-              className="back-dashboard-btn"
-              onClick={() => setActiveTab('Dashboard')}
-            >
-              Return to Dashboard
-            </button>
-          </div>
+        {/* 2. Journal View */}
+        {activeTab === 'Journal' && (
+          <JournalView
+            trades={trades}
+            onEditTrade={(trade) => setEditingTrade(trade)}
+            onInspectTrade={(trade) => setInspectingTrade(trade)}
+            onAddTradeClick={() => setIsAddModalOpen(true)}
+          />
+        )}
+
+        {/* 3. Analytics View */}
+        {activeTab === 'Analytics' && (
+          <AnalyticsView trades={trades} analytics={analytics} />
         )}
       </main>
 
@@ -269,6 +287,14 @@ export function App() {
         onClose={() => setEditingTrade(null)}
         onTradeUpdated={handleTradeUpdated}
         onTradeDeleted={handleTradeDeleted}
+      />
+
+      {/* Trade Inspection Detail Modal */}
+      <TradeDetailModal
+        trade={inspectingTrade}
+        isOpen={!!inspectingTrade}
+        onClose={() => setInspectingTrade(null)}
+        onEdit={(trade) => setEditingTrade(trade)}
       />
     </div>
   )

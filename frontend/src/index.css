@@ -1,19 +1,19 @@
 :root {
-  --surface-canvas: #0d0f17;
-  --surface-card: #161822;
-  --surface-card-hover: #1c1f2e;
-  --surface-overlay: #202436;
-  --border-subtle: #232736;
-  --border-strong: #32374e;
-  --gain-emerald: #10b981;
-  --gain-emerald-subtle: rgba(16, 185, 129, 0.12);
-  --loss-rose: #ef4444;
-  --loss-rose-subtle: rgba(239, 68, 68, 0.12);
-  --accent-indigo: #6366f1;
-  --accent-indigo-hover: #4f46e5;
-  --accent-indigo-subtle: rgba(99, 102, 241, 0.14);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --surface-canvas: #f8fafc;
+  --surface-card: #ffffff;
+  --surface-card-hover: #f8fafc;
+  --surface-overlay: #ffffff;
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --gain-emerald: #059669;
+  --gain-emerald-subtle: rgba(5, 150, 105, 0.1);
+  --loss-rose: #dc2626;
+  --loss-rose-subtle: rgba(220, 38, 38, 0.1);
+  --accent-indigo: #4f46e5;
+  --accent-indigo-hover: #4338ca;
+  --accent-indigo-subtle: rgba(79, 70, 229, 0.08);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-tertiary: #64748b;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Geist", Helvetica, Arial, sans-serif;
 }

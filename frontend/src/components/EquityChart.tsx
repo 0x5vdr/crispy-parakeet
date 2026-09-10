@@ -129,25 +129,25 @@ function EquityChart({ trades }: EquityChartProps) {
             <AreaChart data={chartData} margin={{ top: 15, right: 15, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityGradientEmerald" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10B981" stopOpacity={0.28} />
-                  <stop offset="60%" stopColor="#10B981" stopOpacity={0.08} />
-                  <stop offset="100%" stopColor="#10B981" stopOpacity={0.0} />
+                  <stop offset="0%" stopColor="#059669" stopOpacity={0.22} />
+                  <stop offset="70%" stopColor="#059669" stopOpacity={0.04} />
+                  <stop offset="100%" stopColor="#059669" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="equityGradientRose" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#EF4444" stopOpacity={0.28} />
-                  <stop offset="60%" stopColor="#EF4444" stopOpacity={0.08} />
-                  <stop offset="100%" stopColor="#EF4444" stopOpacity={0.0} />
+                  <stop offset="0%" stopColor="#DC2626" stopOpacity={0.22} />
+                  <stop offset="70%" stopColor="#DC2626" stopOpacity={0.04} />
+                  <stop offset="100%" stopColor="#DC2626" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
 
-              <CartesianGrid strokeDasharray="3 3" stroke="#232736" opacity={0.6} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" opacity={0.8} />
 
               <XAxis
                 dataKey="date"
                 stroke="#64748B"
                 fontSize={11}
                 tickLine={false}
-                axisLine={{ stroke: '#232736' }}
+                axisLine={{ stroke: '#E2E8F0' }}
               />
 
               <YAxis
@@ -156,7 +156,7 @@ function EquityChart({ trades }: EquityChartProps) {
                 domain={[Math.floor(minR - 1), Math.ceil(maxR + 1)]}
                 tickFormatter={(val) => `${val}R`}
                 tickLine={false}
-                axisLine={{ stroke: '#232736' }}
+                axisLine={{ stroke: '#E2E8F0' }}
               />
 
               <Tooltip
@@ -198,11 +198,11 @@ function EquityChart({ trades }: EquityChartProps) {
               <Area
                 type="monotone"
                 dataKey="r"
-                stroke={isPositive ? '#10B981' : '#EF4444'}
+                stroke={isPositive ? '#059669' : '#DC2626'}
                 strokeWidth={2.5}
                 fill={isPositive ? 'url(#equityGradientEmerald)' : 'url(#equityGradientRose)'}
-                dot={{ r: 3, fill: '#161822', stroke: isPositive ? '#10B981' : '#EF4444', strokeWidth: 2 }}
-                activeDot={{ r: 6, fill: isPositive ? '#10B981' : '#EF4444', stroke: '#F8FAFC', strokeWidth: 2 }}
+                dot={{ r: 3, fill: '#FFFFFF', stroke: isPositive ? '#059669' : '#DC2626', strokeWidth: 2 }}
+                activeDot={{ r: 6, fill: isPositive ? '#059669' : '#DC2626', stroke: '#FFFFFF', strokeWidth: 2 }}
               />
             </AreaChart>
           </ResponsiveContainer>

@@ -232,9 +232,10 @@ export function AddTradeModal({ isOpen, onClose, onTradeAdded }: AddTradeModalPr
                 value={session}
                 onChange={(e) => setSession(e.target.value)}
               >
-                <option value="NY AM">NY AM (09:30 - 12:00)</option>
-                <option value="NY PM">NY PM (13:30 - 16:00)</option>
-                <option value="London Open">London Open</option>
+                <option value="New York">New York (NY)</option>
+                <option value="New York AM">New York AM (09:30 - 12:00)</option>
+                <option value="New York PM">New York PM (13:30 - 16:00)</option>
+                <option value="London">London Session</option>
                 <option value="Asia">Asia Session</option>
               </select>
             </div>

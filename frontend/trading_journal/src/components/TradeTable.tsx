@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { normalizeSession } from '../utils'
 import type { Trade } from '../types'
 
 interface TradeTableProps {
@@ -15,7 +16,7 @@ function TradeTable({ trades, onTradeSelect, onEditTrade }: TradeTableProps) {
   const availableSessions = useMemo(() => {
     const sessions = new Set<string>()
     trades.forEach((t) => {
-      if (t.session) sessions.add(t.session)
+      if (t.session) sessions.add(normalizeSession(t.session))
     })
     return Array.from(sessions)
   }, [trades])
@@ -30,7 +31,7 @@ function TradeTable({ trades, onTradeSelect, onEditTrade }: TradeTableProps) {
         ) {
           return false
         }
-        if (sessionFilter !== 'ALL' && trade.session !== sessionFilter) {
+        if (sessionFilter !== 'ALL' && normalizeSession(trade.session) !== sessionFilter) {
           return false
         }
         if (searchTerm.trim()) {
@@ -210,7 +211,7 @@ function TradeTable({ trades, onTradeSelect, onEditTrade }: TradeTableProps) {
 
                   <td>
                     {trade.session ? (
-                      <span className="session-pill">{trade.session}</span>
+                      <span className="session-pill">{normalizeSession(trade.session)}</span>
                     ) : (
                       <span className="muted-dash">—</span>
                     )}
