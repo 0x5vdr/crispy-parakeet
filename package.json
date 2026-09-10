@@ -1,4 +1,13 @@
 {
+  "name": "crispy-parakeet",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend/trading_journal run dev",
+    "build": "npm --prefix frontend/trading_journal run build",
+    "preview": "npm --prefix frontend/trading_journal run preview",
+    "install:frontend": "npm --prefix frontend/trading_journal install",
+    "start": "npm --prefix frontend/trading_journal run dev"
+  },
   "dependencies": {
     "dotenv": "^17.4.2",
     "lucide-react": "^1.43.0",

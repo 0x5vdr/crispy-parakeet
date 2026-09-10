@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from models import Trade
 from database import get_db
@@ -14,21 +14,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-@app.get("/trades", response_model=list[TradeResponse])
-def get_trades(db = Depends(get_db)):
-    return db.query(Trade).all()
 
-@app.post("/trades", response_model=TradeResponse)
-def create_trade(trade: TradeCreate, db = Depends(get_db)):
-    new_trade = Trade(**trade.model_dump())
-    db.add(new_trade)
-    db.commit()
-    db.refresh(new_trade)
-    return new_trade
+@app.get("/traders", response_model=list[str])
+def get_traders(db = Depends(get_db)):
+    names = db.query(Trade.trader_name).distinct().all()
+    return [name[0] for name in names if name[0]]
+
+@app.get("/trades", response_model=list[TradeResponse])
+def get_trades(trader_name: str | None = Query(None), db = Depends(get_db)):
+    query = db.query(Trade)
+    if trader_name and trader_name != "ALL":
+        query = query.filter(Trade.trader_name == trader_name)
+    return query.all()
 
 @app.get("/trades/analytics", response_model=AnalyticsResponse)
-def get_analytics(db = Depends(get_db)):
-    trades = db.query(Trade).all()
+def get_analytics(trader_name: str | None = Query(None), db = Depends(get_db)):
+    query = db.query(Trade)
+    if trader_name and trader_name != "ALL":
+        query = query.filter(Trade.trader_name == trader_name)
+    trades = query.all()
     return {
         "win_rate": analytics.calculate_win_rate(trades),
         "losing_rate": analytics.calculate_losing_rate(trades),
@@ -38,6 +42,14 @@ def get_analytics(db = Depends(get_db)):
         "profit_factor": analytics.calculate_profit_factor(trades),
         "max_drawdown": analytics.calculate_max_drawdown(trades),
     }
+
+@app.post("/trades", response_model=TradeResponse)
+def create_trade(trade: TradeCreate, db = Depends(get_db)):
+    new_trade = Trade(**trade.model_dump())
+    db.add(new_trade)
+    db.commit()
+    db.refresh(new_trade)
+    return new_trade
 
 @app.get("/trades/{trade_id}", response_model=TradeResponse)
 def get_trade(trade_id: int, db = Depends(get_db)):
@@ -66,6 +78,6 @@ def delete_trade(trade_id: int, db = Depends(get_db)):
     db.commit()
     return trade
 
-@app.get("/")   
+@app.get("/")
 def read_root():
     return {"message": "Trading Journal API"}

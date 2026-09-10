@@ -1,5 +1,6 @@
 export interface Trade {
   id: number
+  trader_name?: string
   symbol: string
   direction: string
   entry_price: number | string

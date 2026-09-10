@@ -8,13 +8,15 @@ import AnalyticsView from './components/AnalyticsView'
 import AddTradeModal from './components/AddTradeModal'
 import EditTradeModal from './components/EditTradeModal'
 import TradeDetailModal from './components/TradeDetailModal'
-import { getTrades, getAnalytics } from './api'
+import { getTrades, getAnalytics, getTraders } from './api'
 import type { Trade, Analytics } from './types'
 import './App.css'
 
 export function App() {
   const [trades, setTrades] = useState<Trade[]>([])
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
+  const [traders, setTraders] = useState<string[]>(['Savdar'])
+  const [selectedTrader, setSelectedTrader] = useState<string>('ALL')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -27,12 +29,14 @@ export function App() {
     try {
       setLoading(true)
       setError(null)
-      const [tradesData, analyticsData] = await Promise.all([
-        getTrades(),
-        getAnalytics(),
+      const [tradesData, analyticsData, tradersList] = await Promise.all([
+        getTrades(selectedTrader),
+        getAnalytics(selectedTrader),
+        getTraders(),
       ])
       setTrades(tradesData)
       setAnalytics(analyticsData)
+      setTraders(tradersList.length > 0 ? tradersList : ['Savdar'])
       setLastRefreshed(new Date())
     } catch (err: any) {
       console.error('Error fetching trading data:', err)
@@ -43,13 +47,12 @@ export function App() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [selectedTrader])
 
   useEffect(() => {
     loadData()
   }, [loadData])
 
-  // Calculate live Total R directly from fetched trades
   const totalR = useMemo(() => {
     return trades.reduce((acc, trade) => acc + (Number(trade.result_r) || 0), 0)
   }, [trades])
@@ -64,31 +67,22 @@ export function App() {
 
   const handleTradeAdded = (newTrade: Trade) => {
     setTrades((prev) => [newTrade, ...prev])
-    getAnalytics()
-      .then(setAnalytics)
-      .catch(console.error)
+    getAnalytics(selectedTrader).then(setAnalytics).catch(console.error)
+    getTraders().then(setTraders).catch(console.error)
   }
 
   const handleTradeUpdated = (updatedTrade: Trade) => {
     setTrades((prev) =>
       prev.map((t) => (t.id === updatedTrade.id ? updatedTrade : t)),
     )
-    if (inspectingTrade?.id === updatedTrade.id) {
-      setInspectingTrade(updatedTrade)
-    }
-    getAnalytics()
-      .then(setAnalytics)
-      .catch(console.error)
+    if (inspectingTrade?.id === updatedTrade.id) setInspectingTrade(updatedTrade)
+    getAnalytics(selectedTrader).then(setAnalytics).catch(console.error)
   }
 
   const handleTradeDeleted = (deletedTradeId: number) => {
     setTrades((prev) => prev.filter((t) => t.id !== deletedTradeId))
-    if (inspectingTrade?.id === deletedTradeId) {
-      setInspectingTrade(null)
-    }
-    getAnalytics()
-      .then(setAnalytics)
-      .catch(console.error)
+    if (inspectingTrade?.id === deletedTradeId) setInspectingTrade(null)
+    getAnalytics(selectedTrader).then(setAnalytics).catch(console.error)
   }
 
   return (
@@ -100,15 +94,33 @@ export function App() {
       />
 
       <main className="main-content">
-        {/* Status bar */}
+        {/* Sub-header status bar with Trader Filter */}
         <div className="status-bar">
           <div className="status-left">
             <span className="account-badge">
               <span className="status-indicator"></span>
               Live Database Connected
             </span>
+
+            {/* Trader Selector */}
+            <div className="trader-selector-box">
+              <label>Trader:</label>
+              <select
+                value={selectedTrader}
+                onChange={(e) => setSelectedTrader(e.target.value)}
+                className="trader-select-dropdown"
+              >
+                <option value="ALL">All Traders ({traders.length})</option>
+                {traders.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <span className="account-details">
-              Total Trades: <strong>{trades.length}</strong>
+              Trades: <strong>{trades.length}</strong>
             </span>
           </div>
 
@@ -151,10 +163,9 @@ export function App() {
           </div>
         )}
 
-        {/* 1. Dashboard View */}
+        {/* Dashboard */}
         {activeTab === 'Dashboard' && (
           <div className="dashboard-view">
-            {/* 5 Key Metric Cards */}
             <div className="metrics-grid">
               <MetricCard
                 label="TOTAL R PERFORMANCE"
@@ -241,12 +252,10 @@ export function App() {
               />
             </div>
 
-            {/* Equity Curve Area Chart */}
             <div className="section-block">
               <EquityChart trades={trades} />
             </div>
 
-            {/* Real Trades Execution Log Table */}
             <div className="section-block">
               <TradeTable
                 trades={trades}
@@ -257,7 +266,7 @@ export function App() {
           </div>
         )}
 
-        {/* 2. Journal View */}
+        {/* Journal */}
         {activeTab === 'Journal' && (
           <JournalView
             trades={trades}
@@ -267,20 +276,18 @@ export function App() {
           />
         )}
 
-        {/* 3. Analytics View */}
+        {/* Analytics */}
         {activeTab === 'Analytics' && (
           <AnalyticsView trades={trades} analytics={analytics} />
         )}
       </main>
 
-      {/* Add Trade Modal */}
       <AddTradeModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onTradeAdded={handleTradeAdded}
       />
 
-      {/* Edit / Update Trade Modal */}
       <EditTradeModal
         trade={editingTrade}
         isOpen={!!editingTrade}
@@ -289,7 +296,6 @@ export function App() {
         onTradeDeleted={handleTradeDeleted}
       />
 
-      {/* Trade Inspection Detail Modal */}
       <TradeDetailModal
         trade={inspectingTrade}
         isOpen={!!inspectingTrade}
