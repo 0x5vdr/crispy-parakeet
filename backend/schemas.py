@@ -3,6 +3,7 @@ from decimal import Decimal
 from datetime import datetime
 
 class TradeBase(BaseModel):
+    trader_name: str
     symbol: str
     direction: str
     entry_price: Decimal
@@ -23,6 +24,7 @@ class TradeResponse(TradeBase):
     model_config = ConfigDict(from_attributes=True)
 
 class TradeUpdate(TradeBase):
+        trader_name : str | None = None
         symbol: str | None = None
         direction: str | None = None
         entry_price: Decimal | None = None
